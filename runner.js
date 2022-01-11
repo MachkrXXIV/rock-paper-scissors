@@ -1,3 +1,14 @@
+let playerScore = 0;
+let computerScore = 0;
+
+// Selectors 
+const body = document.querySelector("body");
+const btns = document.querySelectorAll(".btn");
+const playerPoints = document.querySelector("#player-score");
+const computerPoints = document.querySelector("#computer-score");
+const results = document.querySelector(".round-results");
+
+// Functions
 function computerPlay() {
   let hand = Math.floor(Math.random() * 3) + 1;
   if (hand == 1) {
@@ -11,51 +22,70 @@ function computerPlay() {
   }
 }
 
-function playRound(playerSelection, computerSelection) {
-  let player = playerSelection.toUpperCase();
-  let computer= computerSelection.toUpperCase();
+function playRound(playerSelection) {
+  player = capitalize(playerSelection);
+  computer = capitalize(computerPlay());
   let playWin;
 
   if (player == computer) {
-    return "Tie!";
+    results.textContent =`Tie! It's ${player} on ${computer} violence!`;
+    return;
   }
-  else if (player == "ROCK" && computer == "SCISSORS" ||
-  player == "SCISSORS" && computer == "PAPER" ||
-  player == "PAPER" && computer == "ROCK") {
+  else if (player == "Rock" && computer == "Scissors" ||
+  player == "Scissors" && computer == "Paper" ||
+  player == "Paper" && computer == "Rock") {
+    playerScore++;
     playWin = true;
   }
   else {
+    computerScore++;
     playWin = false;
   }
 
-  return playWin ? `You win! ${player} beats ${computer}`
+  updateScore();
+  results.textContent = playWin ? `You win! ${player} beats ${computer}`
   : `You lose ${computer} beats ${player}`;
 }
 
-function game() {
-  let playerWinCount = 0;
-  let computerWinCount = 0;
-  while (playerWinCount < 3 && computerWinCount < 3) {
-    let player = prompt("Rock, Paper, or Scissors?");
-    let computer = computerPlay();
-    let round = playRound(player, computer);
-  
-    if (round.includes("win")) {
-      playerWinCount++;
-      alert("Player wins this round!")
-      alert(`Score\nPlayer:${playerWinCount}\nComputer:${computerWinCount}`);
-    }
-    else if (round.includes("lose")) {
-      computerWinCount++;
-      alert("Computer wins this round!")
-      alert(`Score\nPlayer:${playerWinCount}\nComputer:${computerWinCount}`);
-    }
-    else {
-      alert("Its a tie!");
-      continue;
-    }
-  }
-  return (playerWinCount > computerWinCount) ? "You win the game!" : "You lose the game!";
+function updateScore() {
+  playerPoints.textContent = `Player Score: ${playerScore}`;
+  computerPoints.textContent = `Computer Score: ${computerScore}`;
 }
 
-game();
+function announceWinner(playerScore, computerScore) {
+  let winner = (playerScore > computerScore) ? "Player wins the game!" : "Computer wins the game!";
+  const end = document.createElement("div");
+  body.appendChild(end);
+
+  end.textContent = winner;
+}
+
+function newGame() {
+  const restart = document.createElement("button");
+  restart.textContent = "Play again";
+  body.appendChild(restart);
+  
+  restart.addEventListener("click", () => {
+    window.location.reload(true)
+  });
+}
+
+// Starts game on click of button
+btns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    let playerSelection = btn.id;
+    playRound(playerSelection);
+
+    if (playerScore == 5 || computerScore == 5) {
+      announceWinner(playerScore, computerScore);
+      newGame();
+    }
+  })
+})
+
+// Helper functions
+function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+
